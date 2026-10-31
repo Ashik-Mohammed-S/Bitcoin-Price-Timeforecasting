@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "files": {
+    "BTC_USD_2013-10-01_2021-05-18-CoinDesk.csv": {
+      "sha256": "865dc9835cc911b79ee8fad1b7dbbf70100f684b4a1911394b30b72a8880906a",
+      "uncompressed_bytes": 178509,
+      "storage": "raw",
+      "path": "BTC_USD_2013-10-01_2021-05-18-CoinDesk.csv"
+    }
+  }
+}
