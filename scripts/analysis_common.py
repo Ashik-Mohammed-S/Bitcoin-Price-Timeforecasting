@@ -96,12 +96,22 @@ def temporal_regression(frame,features,target,objective):
     assert train.index.max()<test.index.min()
     pipe=Pipeline([('scale',StandardScaler()),('model',Ridge())])
     search=GridSearchCV(pipe,{'model__alpha':[.1,1.,10.,100.]},cv=TimeSeriesSplit(n_splits=3),scoring='neg_mean_absolute_error')
-    search.fit(train[features],train[target]);pred=search.predict(test[features]);naive=test['lag_1'].to_numpy()
+    search.fit(train[features],train[target])
+    # Select Ridge versus persistence on training-period folds, never on the final test scores.
+    baseline_validation=[]
+    for _, validation_indices in TimeSeriesSplit(n_splits=3).split(train):
+        fold=train.iloc[validation_indices]
+        baseline_validation.append(mean_absolute_error(fold[target],fold['lag_1']))
+    baseline_cv_mae=float(np.mean(baseline_validation))
+    ridge_cv_mae=float(-search.best_score_)
+    selected='ridge' if ridge_cv_mae<baseline_cv_mae else 'last_observation'
+    ridge_pred=search.predict(test[features]);naive=test['lag_1'].to_numpy()
+    pred=ridge_pred if selected=='ridge' else naive
     score=lambda p:{'mae':mean_absolute_error(test[target],p),'rmse':float(np.sqrt(mean_squared_error(test[target],p))), 'r2':r2_score(test[target],p)}
     report={'objective':objective,'analysis_type':'one-step chronological forecasting','target':target,
         'train_rows':len(train),'test_rows':len(test),'train_end':str(train.index.max()),'test_start':str(test.index.min()),
         'split':'Last 20% of targets held out; expanding-window CV and scaling confined to the earlier training period.',
-        'features':features,'metrics':score(pred),'baseline':score(naive),'best_alpha':search.best_params_['model__alpha'],
+        'features':features,'selected_strategy':selected,'training_cv_mae':{'ridge':ridge_cv_mae,'last_observation':baseline_cv_mae},'metrics':score(pred),'ridge_candidate':score(ridge_pred),'baseline':score(naive),'best_alpha':search.best_params_['model__alpha'],
         'interpretation':'Observed lags available at each forecast origin. This is rolling one-step evaluation, not an unconditional multi-day forecast or evidence of causation.'}
     summary=pd.DataFrame({'date':test.index.astype(str),'actual':test[target].to_numpy(),'prediction':pred,'last_observation_baseline':naive})
     fig,ax=plt.subplots(figsize=(10,4));ax.plot(test.index,test[target],label='actual');ax.plot(test.index,pred,label='prediction');ax.plot(test.index,naive,label='last observation',alpha=.6);ax.legend();ax.set_title('Untouched chronological holdout');fig.tight_layout();fig.savefig(output()/'overview.png',dpi=120);plt.close(fig)
