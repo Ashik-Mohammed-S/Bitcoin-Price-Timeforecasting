@@ -13,3 +13,7 @@ The above Colab notebook consists of different time series forecasting models fo
 9. Ensemble (multiple models optimized on different loss functions)
 10. Future prediction model ( model to predict the future)
 11. Dense model (but with turkey data introduced, turkey data is nothing but an anomaly that we deliberately put in the training data to show that time series forecasting is actually BS. )
+
+## Current analysis and local datasets
+
+See [ANALYSIS.md](ANALYSIS.md) for the target-aware workflow and [DATA.md](DATA.md) for the stored reference data. The primary notebook runs the full current analysis; earlier walkthroughs are preserved in historical/.
