@@ -11,7 +11,7 @@ from IPython.core.inputtransformer2 import TransformerManager
 
 root = Path(__file__).resolve().parents[1]
 nb = json.loads((root / "Main.ipynb").read_text(encoding="utf-8"))
-namespace = {"tf": tf, "os": os, "layers": layers, "WINDOW_SIZE": 7, "HORIZON": 1}
+namespace = {"tf": tf, "os": os, "layers": layers, "np": np, "WINDOW_SIZE": 7, "HORIZON": 1}
 for cell in nb["cells"]:
     if cell["cell_type"] != "code":
         continue
@@ -20,13 +20,17 @@ for cell in nb["cells"]:
         if isinstance(node, ast.Assign) and any(isinstance(target, ast.Name) and target.id == "model_4" for target in node.targets) and isinstance(node.value, ast.Call) and ast.unparse(node.value.func) == "tf.keras.Sequential":
             exec(compile(ast.Module(body=[node], type_ignores=[]), "notebook Conv1D", "exec"), namespace)
         if isinstance(node, (ast.FunctionDef, ast.ClassDef)) and node.name in {
-            "NBeatsBlock", "create_model_checkpoint", "mean_absolute_scaled_error", "evaluate_preds"
+            "NBeatsBlock", "create_model_checkpoint", "mean_absolute_scaled_error", "evaluate_preds", "get_labelled_window", "make_windows"
         }:
             exec(compile(ast.Module(body=[node], type_ignores=[]), "notebook helper", "exec"), namespace)
             if node.name == "evaluate_preds":
                 result = namespace[node.name]([1., 2., 3.], [1., 2., 4.])
                 assert np.isclose(result["mae"], 1 / 3)
 
+windows, labels = namespace["make_windows"](np.arange(40), window_size=30, horizon=7)
+assert windows.shape == (4, 30)
+assert labels.shape == (4, 7)
+np.testing.assert_array_equal(labels[0], np.arange(30, 37))
 block = namespace["NBeatsBlock"]
 x = np.arange(28, dtype=np.float32).reshape(4, 7) / 28
 y = np.ones((4, 1), dtype=np.float32)

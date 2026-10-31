@@ -1,0 +1,28 @@
+{
+  "source_repository": "mrdbourke/tensorflow-deep-learning",
+  "commit": "bd065b806249f7b1155e5b1fabd130c5cfc9d184",
+  "license": {
+    "key": "mit",
+    "name": "MIT License",
+    "spdx_id": "MIT",
+    "url": "https://api.github.com/licenses/mit",
+    "node_id": "MDc6TGljZW5zZTEz"
+  },
+  "files": [
+    {
+      "filename": "BTC_USD_2013-10-01_2021-05-18-CoinDesk.csv",
+      "url": "https://raw.githubusercontent.com/mrdbourke/tensorflow-deep-learning/bd065b806249f7b1155e5b1fabd130c5cfc9d184/extras/BTC_USD_2013-10-01_2021-05-18-CoinDesk.csv",
+      "sha256": "865dc9835cc911b79ee8fad1b7dbbf70100f684b4a1911394b30b72a8880906a",
+      "bytes": 178509,
+      "rows": 2787,
+      "columns": [
+        "Currency",
+        "Date",
+        "Closing Price (USD)",
+        "24h Open (USD)",
+        "24h High (USD)",
+        "24h Low (USD)"
+      ]
+    }
+  ]
+}
